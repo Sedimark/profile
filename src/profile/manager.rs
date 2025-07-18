@@ -13,13 +13,13 @@ pub struct Profile {
 }
 
 pub struct ProfileManager {
-    card: RwLock<Option<Profile>>,
+    profile: RwLock<Option<Profile>>,
     file_path: String,
 }
 
 impl ProfileManager {
     pub fn new(file_path: &str) -> Self {
-        let card = if Path::new(file_path).exists() {
+        let profile = if Path::new(file_path).exists() {
             let contents = fs::read_to_string(file_path).unwrap_or_default();
             serde_json::from_str(&contents).ok()
         } else {
@@ -27,36 +27,36 @@ impl ProfileManager {
         };
 
         ProfileManager {
-            card: RwLock::new(card),
+            profile: RwLock::new(profile),
             file_path: file_path.to_string(),
         }
     }
 
-    pub fn create(&self, card: Profile) -> std::io::Result<()> {
-        let mut stored_card = self.card.write().unwrap();
-        *stored_card = Some(card.clone());
-        self.save_to_file(&card)
+    pub fn create(&self, profile: Profile) -> std::io::Result<()> {
+        let mut stored_profile = self.profile.write().unwrap();
+        *stored_profile = Some(profile.clone());
+        self.save_to_file(&profile)
     }
 
     pub fn get(&self) -> Option<Profile> {
-        let card = self.card.read().unwrap();
-        card.clone()
+        let profile = self.profile.read().unwrap();
+        profile.clone()
     }
 
-    pub fn update(&self, card: Profile) -> std::io::Result<()> {
-        let mut stored_card = self.card.write().unwrap();
-        *stored_card = Some(card.clone());
-        self.save_to_file(&card)
+    pub fn update(&self, profile: Profile) -> std::io::Result<()> {
+        let mut stored_profile = self.profile.write().unwrap();
+        *stored_profile = Some(profile.clone());
+        self.save_to_file(&profile)
     }
 
     pub fn delete(&self) -> std::io::Result<()> {
-        let mut card = self.card.write().unwrap();
-        *card = None;
+        let mut profile = self.profile.write().unwrap();
+        *profile = None;
         self.delete_file()
     }
 
-    fn save_to_file(&self, card: &Profile) -> std::io::Result<()> {
-        let serialized = serde_json::to_string_pretty(card)?;
+    fn save_to_file(&self, profile: &Profile) -> std::io::Result<()> {
+        let serialized = serde_json::to_string_pretty(profile)?;
         fs::write(&self.file_path, serialized)
     }
 

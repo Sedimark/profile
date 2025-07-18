@@ -5,33 +5,39 @@ struct AppState {
     profile_manager: ProfileManager,
 }
 
-async fn create_profile(data: web::Data<AppState>, card: web::Json<Profile>) -> impl Responder {
+async fn create_profile(data: web::Data<AppState>, profile: web::Json<Profile>) -> impl Responder {
     let manager = &data.profile_manager;
-    match manager.create(card.into_inner()) {
+    match manager.create(profile.into_inner()) {
         Ok(_) => HttpResponse::Created().json(manager.get()),
-        Err(e) => HttpResponse::InternalServerError().body(format!("Failed to save card: {}", e)),
+        Err(e) => {
+            HttpResponse::InternalServerError().body(format!("Failed to save profile: {}", e))
+        }
     }
 }
 
 async fn get_profile(data: web::Data<AppState>) -> impl Responder {
     match data.profile_manager.get() {
         Some(c) => HttpResponse::Ok().json(c),
-        None => HttpResponse::NotFound().body("No business card found"),
+        None => HttpResponse::NotFound().body("No profile found"),
     }
 }
 
 async fn delete_profile(data: web::Data<AppState>) -> impl Responder {
     match data.profile_manager.delete() {
-        Ok(_) => HttpResponse::Ok().body("Business card deleted successfully"),
-        Err(e) => HttpResponse::InternalServerError().body(format!("Failed to delete card: {}", e)),
+        Ok(_) => HttpResponse::Ok().body("Profile deleted successfully"),
+        Err(e) => {
+            HttpResponse::InternalServerError().body(format!("Failed to delete profile: {}", e))
+        }
     }
 }
 
-async fn update_profile(data: web::Data<AppState>, card: web::Json<Profile>) -> impl Responder {
+async fn update_profile(data: web::Data<AppState>, profile: web::Json<Profile>) -> impl Responder {
     let manager = &data.profile_manager;
-    match manager.update(card.into_inner()) {
+    match manager.update(profile.into_inner()) {
         Ok(_) => HttpResponse::Ok().json(manager.get()),
-        Err(e) => HttpResponse::InternalServerError().body(format!("Failed to update card: {}", e)),
+        Err(e) => {
+            HttpResponse::InternalServerError().body(format!("Failed to update profile: {}", e))
+        }
     }
 }
 
