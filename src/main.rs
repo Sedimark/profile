@@ -45,14 +45,14 @@ async fn main() -> std::io::Result<()> {
 
     HttpServer::new(move || {
         App::new().app_data(app_state.clone()).service(
-            web::resource("/card")
+            web::resource("/profile")
                 .route(web::post().to(create_profile))
                 .route(web::get().to(get_profile))
                 .route(web::delete().to(delete_profile))
                 .route(web::put().to(update_profile)),
         )
     })
-    .bind("127.0.0.1:3005")?
+    .bind("0.0.0.0:3005")?
     .run()
     .await
 }
