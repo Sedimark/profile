@@ -38,7 +38,7 @@ async fn update_profile(data: web::Data<AppState>, card: web::Json<Profile>) -> 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     let app_state = web::Data::new(AppState {
-        profile_manager: ProfileManager::new("profile.json"),
+        profile_manager: ProfileManager::new("data/profile.json"),
     });
 
     println!("Starting server at http://localhost:3005");
