@@ -1,0 +1,21 @@
+meta {
+  name: Modify profile
+  type: http
+  seq: 3
+}
+
+put {
+  url: {{host}}/protected
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "first_name": "James",
+    "last_name": "Hepburn",
+    "company_name": "Bothwell Inc.",
+    "website": "https://james.hepburn",
+    "image_url": "https://example.com/avatar.jpg"
+  }
+}
