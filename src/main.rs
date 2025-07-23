@@ -81,7 +81,7 @@ async fn main() -> std::io::Result<()> {
             .wrap(Logger::default())
             .app_data(app_state.clone())
             .app_data(web::Data::new(api_key.clone()))
-            .service(web::resource("/").route(web::get().to(get_profile))) // Unprotected
+            .service(web::resource("/profile").route(web::get().to(get_profile))) // Unprotected
             .service(
                 web::resource("/protected")
                     .wrap(auth_middleware.clone())
