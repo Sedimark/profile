@@ -5,6 +5,7 @@ use std::sync::RwLock;
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct Profile {
+    pub alternate_name: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub first_name: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -81,6 +82,7 @@ mod tests {
 
     fn sample_profile() -> Profile {
         Profile {
+            alternate_name: "testuser".to_string(),
             first_name: Some("Test".to_string()),
             last_name: Some("User".to_string()),
             company_name: Some("TestCo".to_string()),
@@ -114,6 +116,7 @@ mod tests {
 
         // Update the profile
         let updated_profile = Profile {
+            alternate_name: "testuser".to_string(),
             first_name: Some("Updated".to_string()),
             last_name: Some("New".to_string()),
             company_name: None,
