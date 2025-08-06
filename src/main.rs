@@ -14,7 +14,7 @@ struct AppState {
 
 async fn create_profile(data: web::Data<AppState>, profile: web::Json<Profile>) -> impl Responder {
     let manager = &data.profile_manager;
-    match manager.create(profile.into_inner()) {
+    match manager.save(profile.into_inner()) {
         Ok(_) => HttpResponse::Created().json(manager.get()),
         Err(e) => {
             HttpResponse::InternalServerError().body(format!("Failed to save profile: {}", e))
@@ -40,7 +40,7 @@ async fn delete_profile(data: web::Data<AppState>) -> impl Responder {
 
 async fn update_profile(data: web::Data<AppState>, profile: web::Json<Profile>) -> impl Responder {
     let manager = &data.profile_manager;
-    match manager.update(profile.into_inner()) {
+    match manager.save(profile.into_inner()) {
         Ok(_) => HttpResponse::Ok().json(manager.get()),
         Err(e) => {
             HttpResponse::InternalServerError().body(format!("Failed to update profile: {}", e))

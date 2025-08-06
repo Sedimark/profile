@@ -3,13 +3,18 @@ use std::fs;
 use std::path::Path;
 use std::sync::RwLock;
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct Profile {
-    pub first_name: String,
-    pub last_name: String,
-    pub company_name: String,
-    pub website: String,
-    pub image_url: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub first_name: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub last_name: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub company_name: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub website: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub image_url: Option<String>,
 }
 
 pub struct ProfileManager {
@@ -32,21 +37,15 @@ impl ProfileManager {
         }
     }
 
-    pub fn create(&self, profile: Profile) -> std::io::Result<()> {
+    pub fn save(&self, profile: Profile) -> std::io::Result<()> {
         let mut stored_profile = self.profile.write().unwrap();
-        *stored_profile = Some(profile.clone());
-        self.save_to_file(&profile)
+        *stored_profile = Some(profile);
+        self.save_to_file(stored_profile.as_ref().unwrap())
     }
 
     pub fn get(&self) -> Option<Profile> {
         let profile = self.profile.read().unwrap();
         profile.clone()
-    }
-
-    pub fn update(&self, profile: Profile) -> std::io::Result<()> {
-        let mut stored_profile = self.profile.write().unwrap();
-        *stored_profile = Some(profile.clone());
-        self.save_to_file(&profile)
     }
 
     pub fn delete(&self) -> std::io::Result<()> {
@@ -82,11 +81,11 @@ mod tests {
 
     fn sample_profile() -> Profile {
         Profile {
-            first_name: "Test".to_string(),
-            last_name: "User".to_string(),
-            company_name: "TestCo".to_string(),
-            website: "https://test.com".to_string(),
-            image_url: "https://test.com/avatar.png".to_string(),
+            first_name: Some("Test".to_string()),
+            last_name: Some("User".to_string()),
+            company_name: Some("TestCo".to_string()),
+            website: Some("https://test.com".to_string()),
+            image_url: Some("https://test.com/avatar.png".to_string()),
         }
     }
 
@@ -99,26 +98,32 @@ mod tests {
 
         // Create a profile
         let profile = sample_profile();
-        manager.create(profile.clone()).unwrap();
+        manager.save(profile.clone()).unwrap();
 
         // Verify we can retrieve it
         let retrieved = manager.get().unwrap();
-        assert_eq!(retrieved.first_name, profile.first_name);
+        assert_eq!(retrieved, profile);
     }
 
     #[test]
     fn test_update_profile() {
         let (manager, _file) = create_test_manager();
-        let mut profile = sample_profile();
+        let profile = sample_profile();
 
-        manager.create(profile.clone()).unwrap();
+        manager.save(profile.clone()).unwrap();
 
         // Update the profile
-        profile.first_name = "Updated".to_string();
-        manager.update(profile.clone()).unwrap();
+        let updated_profile = Profile {
+            first_name: Some("Updated".to_string()),
+            last_name: Some("New".to_string()),
+            company_name: None,
+            website: None,
+            image_url: None,
+        };
+        manager.save(updated_profile.clone()).unwrap();
 
         let retrieved = manager.get().unwrap();
-        assert_eq!(retrieved.first_name, "Updated");
+        assert_eq!(retrieved, updated_profile);
     }
 
     #[test]
@@ -126,7 +131,7 @@ mod tests {
         let (manager, _file) = create_test_manager();
         let profile = sample_profile();
 
-        manager.create(profile).unwrap();
+        manager.save(profile).unwrap();
         assert!(manager.get().is_some());
 
         manager.delete().unwrap();
@@ -139,7 +144,7 @@ mod tests {
         let profile = sample_profile();
 
         // Create and save
-        manager.create(profile.clone()).unwrap();
+        manager.save(profile.clone()).unwrap();
 
         // Create new manager with same file
         let path = file.path().to_str().unwrap().to_string();
