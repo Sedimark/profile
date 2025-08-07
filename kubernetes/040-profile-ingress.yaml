@@ -1,0 +1,22 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: profile-ingress
+  namespace: profile
+  annotations:
+    traefik.ingress.kubernetes.io/router.tls.certresolver: default
+    traefik.ingress.kubernetes.io/router.entrypoints: web, websecure
+spec:
+  rules:
+  - host: profile.${PUBLIC_NODE_DOMAIN}
+    http:
+      paths:
+      - path: /profile
+        pathType: Prefix
+        backend:
+          service:
+            name: profile
+            port:
+              number: 3005
+---
+
