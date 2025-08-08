@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: profile
+  namespace: profile
+spec:
+  selector:
+    app: profile
+  type: ClusterIP
+  ports:
+  - name: api
+    protocol: TCP
+    port: 3005
+    targetPort: 3005
+---
+
